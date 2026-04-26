@@ -13,7 +13,7 @@ A comprehensive benchmarking tool for CLI tools, inspired by Terminal-Bench.
 ## Installation
 
 ```bash
-cd helios-bench
+git clone https://github.com/KooshaPari/heliosBench.git && cd heliosBench
 pip install -e .
 ```
 
@@ -26,7 +26,7 @@ helios-bench tasks
 
 ### Run a benchmark
 ```bash
-helios-bench run --binary /path/to/codex --task completion --runs 5
+helios-bench run --binary /path/to/codex --task palindrome --runs 5
 ```
 
 ### Compare two binaries
@@ -41,14 +41,16 @@ helios-bench leak --binary /path/to/codex --runs 20
 
 ## Tasks
 
-| Task | Category | Description |
-|------|----------|-------------|
-| completion | code_completion | Write a palindrome function |
-| review | code_review | Review code for bugs |
-| explain | explanation | Explain a concept |
-| test | test_generation | Write pytest tests |
-| refactor | refactoring | Make code Pythonic |
-| debug | debugging | Find and fix bugs |
+| Task ID | Category | Difficulty | Description |
+|---------|----------|------------|-------------|
+| palindrome | code_completion | easy | Write a palindrome checker function |
+| fibonacci | code_completion | medium | Implement Fibonacci sequence generator |
+| buggy_add | code_review | easy | Review code and identify bugs |
+| refactor_loop | refactoring | easy | Refactor loop to list comprehension |
+| debug_division | debugging | easy | Find and fix a division bug |
+| write_tests | test_generation | medium | Generate pytest unit tests |
+| bayesian_sampler | scientific_computing | hard | Implement adaptive rejection sampler |
+| log_parser | system_admin | medium | Parse log file and extract errors |
 
 ## Output Metrics
 
