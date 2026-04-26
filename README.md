@@ -66,3 +66,7 @@ This harness is compatible with Terminal-Bench style tasks.
 
 - [Terminal-Bench](https://github.com/laude-institute/terminal-bench)
 - [Harbor](https://github.com/laude-institute/harbor)
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
