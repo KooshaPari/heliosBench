@@ -19,4 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 
 
+## [0.2.0] - 2026-04-25
+
+### Added
+
+- Helios Family Sync: coordinated 0.2.0 release across six Helios repos.
+- Unified governance and release process across the Helios family.
+
 [Unreleased]: https://github.com/KooshaPari/heliosBench/compare/main...HEAD
