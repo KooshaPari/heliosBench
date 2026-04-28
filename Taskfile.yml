@@ -7,81 +7,48 @@ tasks:
       - task --list
 
   build:
-    desc: Build the Python package and docs shell when present
+    desc: Build the Python package
     cmds:
       - |
         set -euo pipefail
 
-        if [ -f pyproject.toml ]; then
-          if command -v uv >/dev/null 2>&1; then
-            uv build
-          else
-            python -m build
-          fi
-        fi
-
-        if [ -f package.json ] && grep -q '"docs:build"' package.json; then
-          if command -v bun >/dev/null 2>&1; then
-            bun run docs:build
-          else
-            echo "bun is required to build docs" >&2
-            exit 1
-          fi
+        if command -v uv >/dev/null 2>&1; then
+          uv build
+        else
+          python -m build
         fi
 
   test:
-    desc: Run the primary test suite for the detected stack
+    desc: Run the Python test suite
     cmds:
       - |
         set -euo pipefail
 
-        if [ -f pyproject.toml ]; then
-          if [ ! -d tests ] || ! find tests -type f -name "test_*.py" | grep -q .; then
-            echo "No test files found under tests/; skipping pytest."
-            exit 0
-          fi
-
-          if command -v uv >/dev/null 2>&1; then
-            uv run pytest
-          else
-            python -m pytest
-          fi
+        if [ ! -d tests ] || ! find tests -type f -name "test_*.py" | grep -q .; then
+          echo "No test files found under tests/; skipping pytest."
           exit 0
         fi
 
-        if [ -f package.json ] && grep -q '"test"' package.json; then
-          bun test
-          exit 0
+        if command -v uv >/dev/null 2>&1; then
+          uv run pytest
+        else
+          python -m pytest
         fi
-
-        echo "No supported test command found" >&2
-        exit 1
 
   lint:
-    desc: Run linting for the detected stack
+    desc: Run Python lint checks
     cmds:
       - |
         set -euo pipefail
 
-        if [ -f pyproject.toml ]; then
-          if command -v uv >/dev/null 2>&1; then
-            uv run ruff check .
-          else
-            python -m ruff check .
-          fi
-          exit 0
+        if command -v uv >/dev/null 2>&1; then
+          uv run ruff check .
+        else
+          python -m ruff check .
         fi
-
-        if [ -f package.json ] && grep -q '"lint"' package.json; then
-          bun run lint
-          exit 0
-        fi
-
-        echo "No supported lint command found" >&2
-        exit 1
 
   clean:
-    desc: Remove generated artifacts
+    desc: Remove Python build and cache artifacts
     cmds:
       - |
         set -euo pipefail
