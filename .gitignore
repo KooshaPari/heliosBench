@@ -1,3 +1,9 @@
 # Worktree directories (org policy)
 .worktrees/
 .claude/worktrees/
+
+# Docs site build artifacts
+node_modules/
+dist/
+.vitepress/cache/
+.vitepress/dist/

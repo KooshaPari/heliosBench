@@ -2,6 +2,8 @@
 
 A comprehensive benchmarking tool for CLI tools, inspired by Terminal-Bench.
 
+Docs surface: run `bun install` and `bun run docs:build` for the public docs shell.
+
 ## Features
 
 - **System Resource Monitoring**: CPU, memory (RSS/VMS), file descriptors, threads
@@ -66,6 +68,7 @@ This harness is compatible with Terminal-Bench style tasks.
 
 - [Terminal-Bench](https://github.com/laude-institute/terminal-bench)
 - [Harbor](https://github.com/laude-institute/harbor)
+- Docs site: `docs/`
 
 ## License
 
