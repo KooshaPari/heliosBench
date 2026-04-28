@@ -9,5 +9,5 @@ correct stack based on the repository manifests.
 
 - `Taskfile.yml` exists at repo root
 - `build`, `test`, `lint`, and `clean` work from the repo root
-- The task runner prefers the Python project metadata and still notices the docs shell
-
+- The task runner prefers the Python project metadata from `pyproject.toml`
+- `clean` removes generated Python package metadata wherever the build backend creates it
