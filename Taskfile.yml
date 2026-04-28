@@ -53,6 +53,7 @@ tasks:
       - |
         set -euo pipefail
 
-        rm -rf build dist *.egg-info .coverage htmlcov .pytest_cache .ruff_cache .mypy_cache
+        rm -rf build dist .coverage htmlcov .pytest_cache .ruff_cache .mypy_cache
+        find . -type d -name "*.egg-info" -prune -exec rm -rf {} +
         find . -type d -name "__pycache__" -prune -exec rm -rf {} +
         find . -type f -name "*.pyc" -delete
