@@ -48,6 +48,7 @@ class ResourceStats:
     fds_max: int = 0
     samples: int = 0
 
+
 @dataclass
 class RunResult:
     run_id: int
@@ -55,6 +56,7 @@ class RunResult:
     success: bool
     resources: ResourceStats
     timestamp: str = ""
+
 
 @dataclass
 class BenchmarkResult:
@@ -67,6 +69,7 @@ class BenchmarkResult:
     run_results: list[RunResult] = field(default_factory=list)
     system_info: dict[str, Any] = field(default_factory=dict)
     timestamp: str = ""
+
 
 class ResourceMonitor:
     def __init__(self, sample_interval: float = 0.1):
@@ -98,12 +101,14 @@ class ResourceMonitor:
                 if not self._process.is_running():
                     break
                 mem = self._process.memory_info()
-                self.samples.append({
-                    'rss_mb': mem.rss / (1024 * 1024),
-                    'cpu_percent': self._process.cpu_percent(interval=0),
-                    'threads': self._process.num_threads(),
-                    'fds': self._process.num_fds() if hasattr(self._process, 'num_fds') else 0,
-                })
+                self.samples.append(
+                    {
+                        "rss_mb": mem.rss / (1024 * 1024),
+                        "cpu_percent": self._process.cpu_percent(interval=0),
+                        "threads": self._process.num_threads(),
+                        "fds": self._process.num_fds() if hasattr(self._process, "num_fds") else 0,
+                    }
+                )
                 time.sleep(self.sample_interval)
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 break
@@ -112,10 +117,10 @@ class ResourceMonitor:
         if not self.samples:
             return ResourceStats()
 
-        rss = [s['rss_mb'] for s in self.samples if s.get('rss_mb', 0) > 0]
-        cpu = [s['cpu_percent'] for s in self.samples if s.get('cpu_percent', 0) > 0]
-        threads = [s['threads'] for s in self.samples if s.get('threads', 0) > 0]
-        fds = [s['fds'] for s in self.samples if s.get('fds', 0) > 0]
+        rss = [s["rss_mb"] for s in self.samples if s.get("rss_mb", 0) > 0]
+        cpu = [s["cpu_percent"] for s in self.samples if s.get("cpu_percent", 0) > 0]
+        threads = [s["threads"] for s in self.samples if s.get("threads", 0) > 0]
+        fds = [s["fds"] for s in self.samples if s.get("fds", 0) > 0]
 
         return ResourceStats(
             rss_mean_mb=statistics.mean(rss) if rss else 0,
@@ -128,6 +133,7 @@ class ResourceMonitor:
             fds_max=max(fds) if fds else 0,
             samples=len(self.samples),
         )
+
 
 class LeakDetector:
     def __init__(self, runs: int = 10, warmup: int = 2):
@@ -144,7 +150,9 @@ class LeakDetector:
         for i in range(self.runs):
             result = self._run_single(binary, task, profile)
             self.results.append(result)
-            print(f"    Run {i+1}: {result['elapsed']:.1f}s, RSS={result['rss_max_mb']:.0f}MB, FDs={result['fds_max']}")
+            print(
+                f"    Run {i + 1}: {result['elapsed']:.1f}s, RSS={result['rss_max_mb']:.0f}MB, FDs={result['fds_max']}"
+            )
 
         return self._analyze_leaks()
 
@@ -167,25 +175,29 @@ class LeakDetector:
         stats = monitor.aggregate()
 
         return {
-            'elapsed': elapsed,
-            'rss_mean_mb': stats.rss_mean_mb,
-            'rss_max_mb': stats.rss_max_mb,
-            'cpu_mean': stats.cpu_mean_percent,
-            'fds_max': stats.fds_max,
+            "elapsed": elapsed,
+            "rss_mean_mb": stats.rss_mean_mb,
+            "rss_max_mb": stats.rss_max_mb,
+            "cpu_mean": stats.cpu_mean_percent,
+            "fds_max": stats.fds_max,
         }
 
     def _analyze_leaks(self) -> dict:
-        rss_vals = [r['rss_max_mb'] for r in self.results]
-        fds_vals = [r['fds_max'] for r in self.results]
+        rss_vals = [r["rss_max_mb"] for r in self.results]
+        fds_vals = [r["fds_max"] for r in self.results]
 
         rss_trend = self._calc_trend(rss_vals)
         fds_trend = self._calc_trend(fds_vals)
 
         return {
-            'runs': self.runs,
-            'memory': {'values': rss_vals, 'trend': rss_trend, 'leak': abs(rss_trend) > 0.1},
-            'file_descriptors': {'values': fds_vals, 'trend': fds_trend, 'leak': abs(fds_trend) > 0.1},
-            'healthy': abs(rss_trend) <= 0.1 and abs(fds_trend) <= 0.1,
+            "runs": self.runs,
+            "memory": {"values": rss_vals, "trend": rss_trend, "leak": abs(rss_trend) > 0.1},
+            "file_descriptors": {
+                "values": fds_vals,
+                "trend": fds_trend,
+                "leak": abs(fds_trend) > 0.1,
+            },
+            "healthy": abs(rss_trend) <= 0.1 and abs(fds_trend) <= 0.1,
         }
 
     def _calc_trend(self, values: list[float]) -> float:
@@ -198,14 +210,15 @@ class LeakDetector:
         den = sum((i - x_mean) ** 2 for i in range(n))
         return num / den if den != 0 else 0.0
 
+
 class BenchmarkRunner:
     def __init__(self, binary: str, profile: str = "proxy-minimax"):
         self.binary = binary
         self.profile = profile
         self.system_info = {
-            'cpu_count': psutil.cpu_count(),
-            'memory_total_gb': psutil.virtual_memory().total / (1024**3),
-            'platform': sys.platform,
+            "cpu_count": psutil.cpu_count(),
+            "memory_total_gb": psutil.virtual_memory().total / (1024**3),
+            "platform": sys.platform,
         }
 
     def run_task(self, task: BenchmarkTask) -> RunResult:
@@ -240,11 +253,13 @@ class BenchmarkRunner:
         results = []
 
         for i in range(runs):
-            print(f"  Run {i+1}/{runs}...", end=" ")
+            print(f"  Run {i + 1}/{runs}...", end=" ")
             result = self.run_task(task)
             result.run_id = i + 1
             results.append(result)
-            print(f"{result.elapsed_seconds:.2f}s, RSS={result.resources.rss_max_mb:.0f}MB, FDs={result.resources.fds_max}")
+            print(
+                f"{result.elapsed_seconds:.2f}s, RSS={result.resources.rss_max_mb:.0f}MB, FDs={result.resources.fds_max}"
+            )
 
         return BenchmarkResult(
             binary=self.binary,
@@ -273,64 +288,65 @@ class BenchmarkRunner:
             elapsed = [rr.elapsed_seconds for rr in r.run_results]
             rss = [rr.resources.rss_max_mb for rr in r.run_results]
             return {
-                'elapsed_mean': statistics.mean(elapsed),
-                'elapsed_median': statistics.median(elapsed),
-                'rss_mean': statistics.mean(rss),
-                'rss_max': max(rss),
+                "elapsed_mean": statistics.mean(elapsed),
+                "elapsed_median": statistics.median(elapsed),
+                "rss_mean": statistics.mean(rss),
+                "rss_max": max(rss),
             }
 
         ma = metrics(a)
         mb = metrics(b)
 
         return {
-            'task': a.task_id,
-            'binary_a': a.binary,
-            'binary_b': b.binary,
-            'metrics_a': ma,
-            'metrics_b': mb,
-            'speedup': (mb['elapsed_mean'] - ma['elapsed_mean']) / mb['elapsed_mean'] * 100,
-            'memory_delta': ma['rss_mean'] - mb['rss_mean'],
+            "task": a.task_id,
+            "binary_a": a.binary,
+            "binary_b": b.binary,
+            "metrics_a": ma,
+            "metrics_b": mb,
+            "speedup": (mb["elapsed_mean"] - ma["elapsed_mean"]) / mb["elapsed_mean"] * 100,
+            "memory_delta": ma["rss_mean"] - mb["rss_mean"],
         }
+
 
 def main():
     parser = argparse.ArgumentParser(description="Helios Benchmark Harness")
-    subparsers = parser.add_subparsers(dest='command')
+    subparsers = parser.add_subparsers(dest="command")
 
     # Tasks
-    tasks_parser = subparsers.add_parser('tasks', help='List tasks')
-    tasks_parser.add_argument('--category', help='Filter by category')
-    tasks_parser.add_argument('--difficulty', help='Filter by difficulty')
-    tasks_parser.add_argument('--list', action='store_true', help='List all tasks')
+    tasks_parser = subparsers.add_parser("tasks", help="List tasks")
+    tasks_parser.add_argument("--category", help="Filter by category")
+    tasks_parser.add_argument("--difficulty", help="Filter by difficulty")
+    tasks_parser.add_argument("--list", action="store_true", help="List all tasks")
 
     # Run
-    run_parser = subparsers.add_parser('run', help='Run benchmark')
-    run_parser.add_argument('--binary', required=True)
-    run_parser.add_argument('--task', default='palindrome', choices=list(TASKS.keys()))
-    run_parser.add_argument('--runs', type=int, default=5)
-    run_parser.add_argument('--profile', default='proxy-minimax')
-    run_parser.add_argument('--output')
+    run_parser = subparsers.add_parser("run", help="Run benchmark")
+    run_parser.add_argument("--binary", required=True)
+    run_parser.add_argument("--task", default="palindrome", choices=list(TASKS.keys()))
+    run_parser.add_argument("--runs", type=int, default=5)
+    run_parser.add_argument("--profile", default="proxy-minimax")
+    run_parser.add_argument("--output")
 
     # Compare
-    compare_parser = subparsers.add_parser('compare', help='Compare binaries')
-    compare_parser.add_argument('--binary-a', required=True)
-    compare_parser.add_argument('--binary-b', required=True)
-    compare_parser.add_argument('--task', default='palindrome')
-    compare_parser.add_argument('--runs', type=int, default=3)
-    compare_parser.add_argument('--profile', default='proxy-minimax')
-    compare_parser.add_argument('--output')
+    compare_parser = subparsers.add_parser("compare", help="Compare binaries")
+    compare_parser.add_argument("--binary-a", required=True)
+    compare_parser.add_argument("--binary-b", required=True)
+    compare_parser.add_argument("--task", default="palindrome")
+    compare_parser.add_argument("--runs", type=int, default=3)
+    compare_parser.add_argument("--profile", default="proxy-minimax")
+    compare_parser.add_argument("--output")
 
     # Leak
-    leak_parser = subparsers.add_parser('leak', help='Leak detection')
-    leak_parser.add_argument('--binary', required=True)
-    leak_parser.add_argument('--task', default='palindrome')
-    leak_parser.add_argument('--runs', type=int, default=10)
-    leak_parser.add_argument('--warmup', type=int, default=2)
-    leak_parser.add_argument('--profile', default='proxy-minimax')
-    leak_parser.add_argument('--output')
+    leak_parser = subparsers.add_parser("leak", help="Leak detection")
+    leak_parser.add_argument("--binary", required=True)
+    leak_parser.add_argument("--task", default="palindrome")
+    leak_parser.add_argument("--runs", type=int, default=10)
+    leak_parser.add_argument("--warmup", type=int, default=2)
+    leak_parser.add_argument("--profile", default="proxy-minimax")
+    leak_parser.add_argument("--output")
 
     args = parser.parse_args()
 
-    if args.command == 'tasks':
+    if args.command == "tasks":
         tasks = get_all_tasks()
         if args.category:
             tasks = [t for t in tasks if t.category == args.category]
@@ -344,7 +360,7 @@ def main():
             print(f"{t.id:<20} {t.name:<25} {t.category:<20} {t.difficulty}")
         return
 
-    if args.command == 'run':
+    if args.command == "run":
         task = TASKS[args.task]
         print(f"Running benchmark: {task.name} ({task.category})")
         runner = BenchmarkRunner(args.binary, args.profile)
@@ -352,37 +368,38 @@ def main():
 
         output = asdict(result)
         if args.output:
-            with open(args.output, 'w') as f:
+            with open(args.output, "w") as f:
                 json.dump(output, f, indent=2)
             print(f"\nSaved to: {args.output}")
         else:
             print(json.dumps(output, indent=2, default=str))
 
-    elif args.command == 'compare':
+    elif args.command == "compare":
         task = TASKS[args.task]
         print(f"Comparing: {task.name}")
         runner = BenchmarkRunner(args.binary_a, args.profile)
         comparison = runner.compare(args.binary_b, task, args.runs)
 
         if args.output:
-            with open(args.output, 'w') as f:
+            with open(args.output, "w") as f:
                 json.dump(comparison, f, indent=2)
             print(f"\nSaved to: {args.output}")
         else:
             print(json.dumps(comparison, indent=2))
 
-    elif args.command == 'leak':
+    elif args.command == "leak":
         task = TASKS[args.task]
         print(f"Leak detection: {task.name}")
         detector = LeakDetector(runs=args.runs, warmup=args.warmup)
         result = detector.detect(args.binary, task, args.profile)
 
         if args.output:
-            with open(args.output, 'w') as f:
+            with open(args.output, "w") as f:
                 json.dump(result, f, indent=2)
             print(f"\nSaved to: {args.output}")
         else:
             print(json.dumps(result, indent=2))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
