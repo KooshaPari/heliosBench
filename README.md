@@ -1,5 +1,7 @@
 # Helios Benchmark Harness
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 [![AI Slop Inside](https://sladge.net/badge.svg)](https://sladge.net)
 
 A comprehensive benchmarking tool for CLI tools, inspired by Terminal-Bench.
